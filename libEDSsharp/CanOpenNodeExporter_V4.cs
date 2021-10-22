@@ -52,10 +52,14 @@ namespace libEDSsharp
         UInt16 CNT_SDO_CLI = 0;
         UInt16 CNT_TIME = 0;
         UInt16 CNT_SYNC = 0;
+        UInt16 CNT_SYNC_PROD = 0;
+        UInt16 CNT_STORAGE = 0;
         UInt16 CNT_RPDO = 0;
         UInt16 CNT_TPDO = 0;
         UInt16 CNT_GFC = 0;
         UInt16 CNT_SRDO = 0;
+        UInt16 CNT_EM_PROD = 0;
+        UInt16 CNT_HB_PROD = 0;
 
         /// <summary>
         /// export the current data set in the CanOpen Node format V4
@@ -104,11 +108,19 @@ namespace libEDSsharp
                 // The code below is nessesary if you have old eds file, that do not have "CO_countLabel" set.
                 // Count objects for initialization of CO_config_t object.
                 if (od.Index==0x1017)
+                {
                     CNT_NMT++;
+                    CNT_HB_PROD++;
+                }
                 if (od.Index==0x1016)
                     CNT_HB_CONS++;
+                if (od.Index==0x1010)
+                    CNT_STORAGE++;
                 if ((od.Index==0x1014 || od.Index==0x1015) && CNT_EM==0)
+                {
                     CNT_EM++;
+                    CNT_EM_PROD++;
+                }
                 if (od.Index>=0x1200 && od.Index<0x1280)
                     CNT_SDO_SRV++;
                 if (od.Index>=0x1280 && od.Index<0x1300)
@@ -116,7 +128,10 @@ namespace libEDSsharp
                 if (od.Index==0x1012)
                     CNT_TIME++;
                 if (od.Index==0x1005)
+                {
                     CNT_SYNC++;
+                    CNT_SYNC_PROD++;
+                }
                 if (od.Index>=0x1400 && od.Index<0x1500)
                     CNT_RPDO++;
                 if (od.Index>=0x1800 && od.Index<0x1900)
@@ -181,13 +196,17 @@ namespace libEDSsharp
             CNT_SRDO=(UInt16)(CNT_SRDO/2);
             // The code below is nessesary if you have old eds file, that do not have "CO_countLabel" set.
             if (ODCnt.Count==0) {
-                ODCnt.Add("HB_CONS", CNT_HB_CONS);
                 ODCnt.Add("NMT", CNT_NMT);
                 ODCnt.Add("EM", CNT_EM);
+                ODCnt.Add("SYNC", CNT_SYNC);
+                ODCnt.Add("SYNC_PROD", CNT_SYNC_PROD);
+                ODCnt.Add("STORAGE", CNT_STORAGE);
+                ODCnt.Add("TIME", CNT_TIME);
+                ODCnt.Add("EM_PROD", CNT_EM_PROD);
+                ODCnt.Add("HB_CONS", CNT_HB_CONS);
+                ODCnt.Add("HB_PROD", CNT_HB_PROD);
                 ODCnt.Add("SDO_SRV", CNT_SDO_SRV);
                 ODCnt.Add("SDO_CLI", CNT_SDO_CLI);
-                ODCnt.Add("TIME", CNT_TIME);
-                ODCnt.Add("SYNC", CNT_SYNC);
                 ODCnt.Add("RPDO", CNT_RPDO);
                 ODCnt.Add("TPDO", CNT_TPDO);
                 ODCnt.Add("GFC", CNT_GFC);
