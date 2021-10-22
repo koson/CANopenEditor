@@ -58,7 +58,9 @@ namespace libEDSsharp
         UInt16 CNT_TPDO = 0;
         UInt16 CNT_GFC = 0;
         UInt16 CNT_SRDO = 0;
+        UInt16 CNT_STORAGE = 0;
         UInt16 CNT_EM_PROD = 0;
+        UInt16 CNT_SYNC_PROD = 0;
         UInt16 CNT_HB_PROD = 0;
 
         /// <summary>
@@ -140,6 +142,14 @@ namespace libEDSsharp
                     CNT_GFC++;
                 if (od.Index>=0x1301 && od.Index<0x1380)
                     CNT_SRDO++;
+                if (od.Index==0x1010)
+                    CNT_STORAGE++;
+                if (od.Index==0x1014)
+                    CNT_EM_PROD++;
+                if (od.Index==0x1006)
+                    CNT_SYNC_PROD++;
+                if (od.Index == 0x1006)
+                    CNT_HB_PROD++;
                 string indexH = $"{od.Index:X4}";
                 string cName = Make_cname(od.parameter_name);
                 string varName = $"{indexH}_{cName}";
@@ -211,6 +221,10 @@ namespace libEDSsharp
                 ODCnt.Add("TPDO", CNT_TPDO);
                 ODCnt.Add("GFC", CNT_GFC);
                 ODCnt.Add("SRDO", CNT_SRDO);
+                ODCnt.Add("STORAGE", CNT_STORAGE);
+                ODCnt.Add("EM_PROD", CNT_EM_PROD);
+                ODCnt.Add("SYNC_PROD", CNT_SYNC_PROD);
+                ODCnt.Add("HB_PROD", CNT_HB_PROD);
             }
         }
 
