@@ -58,9 +58,7 @@ namespace libEDSsharp
         UInt16 CNT_TPDO = 0;
         UInt16 CNT_GFC = 0;
         UInt16 CNT_SRDO = 0;
-        UInt16 CNT_STORAGE = 0;
         UInt16 CNT_EM_PROD = 0;
-        UInt16 CNT_SYNC_PROD = 0;
         UInt16 CNT_HB_PROD = 0;
 
         /// <summary>
@@ -110,19 +108,11 @@ namespace libEDSsharp
                 // The code below is nessesary if you have old eds file, that do not have "CO_countLabel" set.
                 // Count objects for initialization of CO_config_t object.
                 if (od.Index==0x1017)
-                {
                     CNT_NMT++;
-                    CNT_HB_PROD++;
-                }
                 if (od.Index==0x1016)
                     CNT_HB_CONS++;
-                if (od.Index==0x1010)
-                    CNT_STORAGE++;
                 if ((od.Index==0x1014 || od.Index==0x1015) && CNT_EM==0)
-                {
                     CNT_EM++;
-                    CNT_EM_PROD++;
-                }
                 if (od.Index>=0x1200 && od.Index<0x1280)
                     CNT_SDO_SRV++;
                 if (od.Index>=0x1280 && od.Index<0x1300)
@@ -130,10 +120,7 @@ namespace libEDSsharp
                 if (od.Index==0x1012)
                     CNT_TIME++;
                 if (od.Index==0x1005)
-                {
                     CNT_SYNC++;
-                    CNT_SYNC_PROD++;
-                }
                 if (od.Index>=0x1400 && od.Index<0x1500)
                     CNT_RPDO++;
                 if (od.Index>=0x1800 && od.Index<0x1900)
@@ -221,10 +208,10 @@ namespace libEDSsharp
                 ODCnt.Add("TPDO", CNT_TPDO);
                 ODCnt.Add("GFC", CNT_GFC);
                 ODCnt.Add("SRDO", CNT_SRDO);
-                ODCnt.Add("STORAGE", CNT_STORAGE);
-                ODCnt.Add("EM_PROD", CNT_EM_PROD);
-                ODCnt.Add("SYNC_PROD", CNT_SYNC_PROD);
-                ODCnt.Add("HB_PROD", CNT_HB_PROD);
+                //ODCnt.Add("STORAGE", CNT_STORAGE);
+                //ODCnt.Add("EM_PROD", CNT_EM_PROD);
+                //ODCnt.Add("SYNC_PROD", CNT_SYNC_PROD);
+                //ODCnt.Add("HB_PROD", CNT_HB_PROD);
             }
         }
 
