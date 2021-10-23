@@ -126,7 +126,7 @@ namespace ODEditor
             UInt16 newindex = EDSsharp.ConvertToUInt16(bits[0]);
             //warning if the subindex is still hex the converter will not know about it
             //we may need to append 0x to keep it correct
-            UInt16 newsubindex = EDSsharp.ConvertToUInt16(bits[1]);
+            UInt16 newsubindex = EDSsharp.ConvertToUInt16("0x"+bits[1]);
 
             //bits[2] is the description if we need it
 
