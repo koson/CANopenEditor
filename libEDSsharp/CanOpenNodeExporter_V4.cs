@@ -186,8 +186,8 @@ namespace libEDSsharp
                 {
                     if (ODCnt.ContainsKey(od.prop.CO_countLabel))
                         ODCnt[od.prop.CO_countLabel]++;
-                    else
-                        ODCnt.Add(od.prop.CO_countLabel, 1);
+                    //else
+                    //    ODCnt.Add(od.prop.CO_countLabel, 1);
                 }
             }
             CNT_SRDO=(UInt16)(CNT_SRDO/2);
