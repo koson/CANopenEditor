@@ -230,6 +230,12 @@
             </summary>
             <returns>string summary of object</returns>
         </member>
+        <member name="M:libEDSsharp.ODentry.ObjectTypeString">
+            <summary>
+            Provide a simple string representation of the object type. Returns the string of the ENUM ObjectType.VAR if objecttype is not enumed  
+            </summary>
+            <returns>string representation of object type </returns>
+        </member>
         <member name="M:libEDSsharp.ODentry.AddSubEntry">
             <summary>
             Duplicate current sub entry and add it to parent
