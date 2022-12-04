@@ -34,6 +34,7 @@
             this.button_insert = new System.Windows.Forms.Button();
             this.button_cancel = new System.Windows.Forms.Button();
             this.dataGridView = new System.Windows.Forms.DataGridView();
+            this.button_uncheck = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -88,6 +89,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dataGridView.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnKeystroke;
             this.dataGridView.Location = new System.Drawing.Point(12, 51);
@@ -97,11 +99,23 @@
             this.dataGridView.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.DataGridView_ColumnHeaderMouseClick);
             this.dataGridView.Leave += new System.EventHandler(this.DataGridView_Leave);
             // 
+            // button_uncheck
+            // 
+            this.button_uncheck.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.button_uncheck.Location = new System.Drawing.Point(12, 345);
+            this.button_uncheck.Name = "button_uncheck";
+            this.button_uncheck.Size = new System.Drawing.Size(130, 37);
+            this.button_uncheck.TabIndex = 11;
+            this.button_uncheck.Text = "Uncheck all";
+            this.button_uncheck.UseVisualStyleBackColor = true;
+            this.button_uncheck.Click += new System.EventHandler(this.button_uncheck_Click);
+            // 
             // InsertObjects
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(456, 394);
+            this.Controls.Add(this.button_uncheck);
             this.Controls.Add(this.dataGridView);
             this.Controls.Add(this.button_cancel);
             this.Controls.Add(this.button_insert);
@@ -122,5 +136,6 @@
         private System.Windows.Forms.Button button_insert;
         private System.Windows.Forms.Button button_cancel;
         private System.Windows.Forms.DataGridView dataGridView;
+        private System.Windows.Forms.Button button_uncheck;
     }
 }

@@ -28,7 +28,7 @@ namespace Tests
 
             ODentry od = new ODentry
             {
-                objecttype = ObjectType.REC,
+                objecttype = ObjectType.RECORD,
                 parameter_name = "Test Record",
                 accesstype = EDSsharp.AccessType.ro,
                 Index = 0x2000

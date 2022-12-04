@@ -66,7 +66,7 @@ namespace ODEditor
             else if (radioButton_array.Checked)
                 objectType = ObjectType.ARRAY;
             else if (radioButton_record.Checked)
-                objectType = ObjectType.REC;
+                objectType = ObjectType.RECORD;
             else
             {
                 MessageBox.Show("Please specify the Object Type");

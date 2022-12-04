@@ -1,4 +1,6 @@
-﻿namespace ODEditor
+﻿using libEDSsharp;
+
+namespace ODEditor
 {
     partial class NewIndex
     {

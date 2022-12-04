@@ -441,7 +441,7 @@ namespace libEDSsharp
                 }
 
 
-                if (od.objecttype != ObjectType.ARRAY && od.objecttype != ObjectType.REC)
+                if (od.objecttype != ObjectType.ARRAY && od.objecttype != ObjectType.RECORD)
                 {
                     //#209 don't set data type for array or rec objects, the subobjects hold 
                     //the data type
@@ -1109,12 +1109,7 @@ namespace libEDSsharp
 
                                 subentry.uniqueID = subobj.uniqueIDRef;
 
-                                subentry.HighLimit = subobj.highLimit;
-                                subentry.LowLimit = subobj.lowLimit;
-                                subentry.actualvalue = subobj.actualValue;
-
-                                //FIXME WTF is going on here??
-                                entry.subobjects.Add(subobj.subIndex[1], subentry);
+                                entry.subobjects.Add(subobj.subIndex[0], subentry);
 
                             }
                         }

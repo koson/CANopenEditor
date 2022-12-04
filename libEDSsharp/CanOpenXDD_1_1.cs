@@ -448,7 +448,7 @@ namespace libEDSsharp
                     if (deviceCommissioning && od.actualvalue != null && od.actualvalue != "")
                         devPar.actualValue = new actualValue { value = od.actualvalue };
                 }
-                else if ((od.objecttype == ObjectType.ARRAY || od.objecttype == ObjectType.REC) && od.subobjects != null && od.subobjects.Count > 0)
+                else if ((od.objecttype == ObjectType.ARRAY || od.objecttype == ObjectType.RECORD) && od.subobjects != null && od.subobjects.Count > 0)
                 {
                     netObj.subNumber = (byte)od.subobjects.Count;
                     netObj.subNumberSpecified = true;
@@ -501,7 +501,7 @@ namespace libEDSsharp
                         if (deviceCommissioning && subod.actualvalue != null && subod.actualvalue != "")
                             devPar.actualValue = new actualValue { value = subod.actualvalue };
 
-                        if (od.objecttype == ObjectType.REC)
+                        if (od.objecttype == ObjectType.RECORD)
                         {
                             devStructSubList.Add(new varDeclaration
                             {

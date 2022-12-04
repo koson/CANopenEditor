@@ -57,7 +57,7 @@ namespace Tests
 
             ODentry od = new ODentry
             {
-                objecttype = ObjectType.REC,
+                objecttype = ObjectType.RECORD,
                 parameter_name = "Test REC",
                 Index = 0x2000
             };

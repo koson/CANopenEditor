@@ -258,7 +258,7 @@ Device Information
             var mappings = new SortedDictionary<UInt16, ODentry>();
             foreach (ODentry od in eds.ods.Values)
             {
-                if (od.Index < 0x1400 || od.prop.CO_disabled || od.objecttype != ObjectType.REC || od.subobjects.Count < 3)
+                if (od.Index < 0x1400 || od.prop.CO_disabled || od.objecttype != ObjectType.RECORD || od.subobjects.Count < 3)
                     continue;
                 else if (od.Index < 0x1600)
                     parameters.Add(od.Index, od);

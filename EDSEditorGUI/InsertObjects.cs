@@ -221,5 +221,17 @@ namespace ODEditor
                 enabled[odIdx++] = (bool)row.Cells[0].Value;
             }
         }
+
+        private void button_uncheck_Click(object sender, EventArgs e)
+        {
+            int odIdx = 0;
+            foreach (DataGridViewRow item in dataGridView.Rows)
+            {
+                DataGridViewCheckBoxCell cell = (DataGridViewCheckBoxCell)item.Cells[0];
+
+                cell.Value = false;
+                enabled[odIdx++] = false;
+            }
+        }
     }
 }
