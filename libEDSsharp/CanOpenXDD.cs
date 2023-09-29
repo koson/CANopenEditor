@@ -660,8 +660,8 @@ namespace libEDSsharp
 
 
             NetworkManagement.deviceCommissioning = new ProfileBody_CommunicationNetwork_CANopenNetworkManagementDeviceCommissioning();
-            NetworkManagement.deviceCommissioning.actualBaudRate = eds.dc.BaudRate.ToString();
-            NetworkManagement.deviceCommissioning.nodeID = eds.dc.NodeId;
+            NetworkManagement.deviceCommissioning.actualBaudRate = eds.dc.Baudrate.ToString();
+            NetworkManagement.deviceCommissioning.NodeID = eds.dc.NodeID;
             NetworkManagement.deviceCommissioning.networkName = eds.dc.NetworkName;
             NetworkManagement.deviceCommissioning.networkNumber = eds.dc.NetNumber;
             NetworkManagement.deviceCommissioning.CANopenManager = eds.dc.CANopenManager;
@@ -923,8 +923,8 @@ namespace libEDSsharp
 
                     if (NetworkManagment.deviceCommissioning != null)
                     {
-                        eds.dc.NodeId = NetworkManagment.deviceCommissioning.nodeID;
-                        eds.dc.BaudRate = Convert.ToUInt16(NetworkManagment.deviceCommissioning.actualBaudRate);
+                        eds.dc.NodeID = NetworkManagment.deviceCommissioning.NodeID;
+                        eds.dc.Baudrate = Convert.ToUInt16(NetworkManagment.deviceCommissioning.actualBaudRate);
                         eds.dc.CANopenManager = NetworkManagment.deviceCommissioning.CANopenManager;
                         eds.dc.NetworkName = NetworkManagment.deviceCommissioning.networkName;
                         eds.dc.NetNumber = Convert.ToUInt16(NetworkManagment.deviceCommissioning.networkNumber);
@@ -4100,7 +4100,7 @@ namespace CanOpenXSD_1_0
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte nodeID
+        public byte NodeID
         {
             get
             {

@@ -1,0 +1,38 @@
+name: .NET
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+#    runs-on: ubuntu-latest # Error: setup-msbuild can only be run on Windows runners
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: microsoft/setup-msbuild@v1.1
+#      uses: actions/setup-dotnet@v2
+#      with:
+#        dotnet-version: 5.0.x
+#    - name: Restore dependencies
+#      run: dotnet restore
+    - name: Add Packages
+      run: |
+        nuget install EDSEditorGUI/packages.config -OutputDirectory packages
+#        nuget install Tests/packages.config -OutputDirectory packages
+    - name: Build
+#      run: make all # builds the Debug configuration
+      run: msbuild EDSEditorGUI /property:Configuration=Release
+#      run: dotnet build --no-restore
+#    - name: Test
+#      run: dotnet test --no-build --verbosity normal
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: EDSEditor
+        path: EDSEditorGUI\bin\Release\

@@ -822,13 +822,13 @@ namespace libEDSsharp
         }
 
         [DcfExport]
-        public byte NodeId = 0;
+        public byte NodeID = 0;
 
         [DcfExport(maxlength = 246)]
         public string NodeName = ""; //Max 246 characters
 
         [DcfExport]
-        public UInt16 BaudRate;
+        public UInt16 Baudrate;
 
         [DcfExport]
         public UInt32 NetNumber;
@@ -1304,9 +1304,9 @@ namespace libEDSsharp
                     break;
                 case libEDSsharp.AccessSDO.rw:
                     if (accessPDO == libEDSsharp.AccessPDO.r)
-                        accesstype = EDSsharp.AccessType.rwr;
-                    else if (accessPDO == libEDSsharp.AccessPDO.t)
                         accesstype = EDSsharp.AccessType.rww;
+                    else if (accessPDO == libEDSsharp.AccessPDO.t)
+                        accesstype = EDSsharp.AccessType.rwr;
                     else
                         accesstype = EDSsharp.AccessType.rw;
                     break;
@@ -1319,10 +1319,10 @@ namespace libEDSsharp
             if (accType == EDSsharp.AccessType.UNKNOWN && parent != null && parent.objecttype == ObjectType.ARRAY)
                 accType = parent.accesstype;
 
-            if (PDOtype == PDOMappingType.RPDO || accType == EDSsharp.AccessType.rwr)
-                return libEDSsharp.AccessPDO.t;
-            else if (PDOtype == PDOMappingType.TPDO || accType == EDSsharp.AccessType.rww)
+            if (PDOtype == PDOMappingType.RPDO || accType == EDSsharp.AccessType.rww)
                 return libEDSsharp.AccessPDO.r;
+            else if (PDOtype == PDOMappingType.TPDO || accType == EDSsharp.AccessType.rwr)
+                return libEDSsharp.AccessPDO.t;
             if (PDOtype == PDOMappingType.optional || PDOtype == PDOMappingType.@default)
                 return libEDSsharp.AccessPDO.tr;
             else
@@ -1534,7 +1534,7 @@ namespace libEDSsharp
                 DataType dt = datatype;
                 if (dt == DataType.UNKNOWN && this.parent != null)
                     dt = parent.datatype;
-                writer.WriteLine(string.Format("DataType=0x{0:X4}", (int)dt));
+                    writer.WriteLine(string.Format("DataType=0x{0:X4}", (int)dt));
                 writer.WriteLine(string.Format("AccessType={0}", accesstype.ToString()));
 
 
@@ -1904,7 +1904,7 @@ namespace libEDSsharp
 
         public Dictionary<UInt16, Module> modules;
 
-        public UInt16 NodeId = 0;
+        public UInt16 NodeID = 0;
 
         public delegate void DataDirty(bool dirty, EDSsharp sender);
         public event DataDirty OnDataDirty;
@@ -2021,7 +2021,7 @@ namespace libEDSsharp
                     }
                     if (missing)
                         mappingErrors.Add($"{PDO} 0x{indexPdo:X4},0x{subIdxPdo:X2}: missing OD entry 0x{mapIdx:X4},0x{mapSub:X2}");
-                    else if (accessPDO == AccessPDO.no || (PDO == "RPDO" && accessPDO == AccessPDO.r) || (PDO == "TPDO" && accessPDO == AccessPDO.t))
+                    else if (accessPDO == AccessPDO.no || (PDO == "RPDO" && accessPDO == AccessPDO.t) || (PDO == "TPDO" && accessPDO == AccessPDO.r))
                         mappingErrors.Add($"{PDO} 0x{indexPdo:X4},0x{subIdxPdo:X2}: not mappable OD entry 0x{mapIdx:X4},0x{mapSub:X2}");
                 }
             }
@@ -2546,7 +2546,7 @@ namespace libEDSsharp
                 {
                     //Fill in cob ID
                     //FIX ME i'm really sure this is not correct, what default values should be used???
-                    string cob = string.Format("0x180+$NODEID");
+                    string cob = string.Format("$NODEID + 0x180");
                     ODentry subod = new ODentry("COB-ID", index, DataType.UNSIGNED32, cob, AccessType.rw, PDOMappingType.no, ods[index]);
                     ods[index].subobjects.Add(0x05, subod);
 
@@ -2930,7 +2930,7 @@ namespace libEDSsharp
 
             try
             {
-                if (dc.NodeId == 0)
+                if (dc.NodeID == 0)
                 {
                     input = input.Replace("$NODEID", "");
                     input = input.Replace("+", "");
@@ -2938,7 +2938,7 @@ namespace libEDSsharp
                     return Convert.ToUInt32(input.Trim(), Getbase(input));
                 }
 
-                input = input.Replace("$NODEID", dc.NodeId.ToString()); // dc.NodeID is decimal
+                input = input.Replace("$NODEID", dc.NodeID.ToString()); // dc.NodeID is decimal
                 string[] bits = Array.ConvertAll(input.Split('+'), p => p.Trim()); // Split and Trim the value
                 if (bits.Length==1)
                 {

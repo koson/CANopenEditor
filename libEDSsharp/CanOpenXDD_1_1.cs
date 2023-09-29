@@ -788,9 +788,9 @@ namespace libEDSsharp
             {
                 NetworkManagement.deviceCommissioning = new ProfileBody_CommunicationNetwork_CANopenNetworkManagementDeviceCommissioning
                 {
-                    nodeID = eds.dc.NodeId,
+                    NodeID = eds.dc.NodeID,
                     nodeName = eds.dc.NodeName,
-                    actualBaudRate = eds.dc.BaudRate.ToString(),
+                    actualBaudRate = eds.dc.Baudrate.ToString(),
                     networkNumber = eds.dc.NetNumber,
                     networkName = eds.dc.NetworkName,
                     CANopenManager = eds.dc.CANopenManager
@@ -942,9 +942,9 @@ namespace libEDSsharp
 
                     if (NetworkManagement.deviceCommissioning != null)
                     {
-                        eds.dc.NodeId = NetworkManagement.deviceCommissioning.nodeID;
-                        try { eds.dc.BaudRate = System.Convert.ToUInt16(NetworkManagement.deviceCommissioning.actualBaudRate); }
-                        catch (Exception) { eds.dc.BaudRate = 0; }
+                        eds.dc.NodeID = NetworkManagement.deviceCommissioning.NodeID;
+                        try { eds.dc.Baudrate = System.Convert.ToUInt16(NetworkManagement.deviceCommissioning.actualBaudRate); }
+                        catch (Exception) { eds.dc.Baudrate = 0; }
                         eds.dc.CANopenManager = NetworkManagement.deviceCommissioning.CANopenManager;
                         eds.dc.NetworkName = NetworkManagement.deviceCommissioning.networkName;
                         try { eds.dc.NetNumber = System.Convert.ToUInt16(NetworkManagement.deviceCommissioning.networkNumber); }

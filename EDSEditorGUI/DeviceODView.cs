@@ -25,79 +25,28 @@ using System.Windows.Forms;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using libEDSsharp;
-
 namespace ODEditor
 {
 
     public partial class DeviceODView : MyTabUserControl
     {
         EDSsharp eds = null;
+        public List<EDSsharp> network;
 
         ODentry selectedObject;
         ODentry lastSelectedObject;
         ListView selectedList;
         bool justUpdating = false;
-        readonly bool CANopenNodeV4;
-
+        bool ExporterOld = false;
+        bool ExporterV4 = false;
+       
+        public event EventHandler<UpdateODViewEventArgs> UpdateODViewForEDS;
+       
         public DeviceODView()
         {
-            ExporterFactory.Exporter type = (ExporterFactory.Exporter)Properties.Settings.Default.ExporterType;
-            CANopenNodeV4 = (type == ExporterFactory.Exporter.CANOPENNODE_V4);
 
             InitializeComponent();
-
-            if (CANopenNodeV4)
-            {
-                comboBox_dataType.Items.Add("BOOLEAN");
-                comboBox_dataType.Items.Add("INTEGER8");
-                comboBox_dataType.Items.Add("INTEGER16");
-                comboBox_dataType.Items.Add("INTEGER32");
-                comboBox_dataType.Items.Add("INTEGER64");
-                comboBox_dataType.Items.Add("UNSIGNED8");
-                comboBox_dataType.Items.Add("UNSIGNED16");
-                comboBox_dataType.Items.Add("UNSIGNED32");
-                comboBox_dataType.Items.Add("UNSIGNED64");
-                comboBox_dataType.Items.Add("REAL32");
-                comboBox_dataType.Items.Add("REAL64");
-                comboBox_dataType.Items.Add("VISIBLE_STRING");
-                comboBox_dataType.Items.Add("OCTET_STRING");
-                comboBox_dataType.Items.Add("UNICODE_STRING");
-                comboBox_dataType.Items.Add("DOMAIN");
-
-                comboBox_objectType.Items.Add("VAR");
-                comboBox_objectType.Items.Add("ARRAY");
-                comboBox_objectType.Items.Add("RECORD");
-
-                foreach (AccessSDO foo in Enum.GetValues(typeof(AccessSDO)))
-                    comboBox_accessSDO.Items.Add(foo.ToString());
-
-                foreach (AccessPDO foo in Enum.GetValues(typeof(AccessPDO)))
-                    comboBox_accessPDO.Items.Add(foo.ToString());
-
-                label_pdoFlags.Visible = false;
-                checkBox_pdoFlags.Visible = false;
-            }
-            else
-            {
-                foreach (DataType foo in Enum.GetValues(typeof(DataType)))
-                    comboBox_dataType.Items.Add(foo.ToString());
-                foreach (ObjectType foo in Enum.GetValues(typeof(ObjectType)))
-                    comboBox_objectType.Items.Add(foo.ToString());
-                foreach (EDSsharp.AccessType foo in Enum.GetValues(typeof(EDSsharp.AccessType)))
-                    comboBox_accessSDO.Items.Add(foo.ToString());
-                foreach (PDOMappingType foo in Enum.GetValues(typeof(PDOMappingType)))
-                    comboBox_accessPDO.Items.Add(foo.ToString());
-
-                //comboBox_accessSDO.Items.Add("0x1003 rw/ro");
-                //comboBox_accessSDO.Items.Add("0x1010 const/rw");
-                //comboBox_accessSDO.Items.Add("0x1010 const/ro");
-
-                label_pdoFlags.Visible = true;
-                checkBox_pdoFlags.Visible = true;
-            }
-
-            foreach (AccessSRDO foo in Enum.GetValues(typeof(AccessSRDO)))
-                comboBox_accessSRDO.Items.Add(foo.ToString());
+            RebuildControls();
 
             // other elements may be added in PopulateObjectLists()
             comboBox_countLabel.Items.Add("");
@@ -112,18 +61,110 @@ namespace ODEditor
             listView_subObjects.DoubleBuffering(true);
         }
 
-        private bool Checkdirty()
+
+        public void RebuildControls()
         {
+            if (ExporterTypeV4())
+            {
+                comboBox_dataType.Items.Clear();
+                comboBox_dataType.Items.Add(DataType.BOOLEAN.ToString());
+                comboBox_dataType.Items.Add(DataType.INTEGER8.ToString());
+                comboBox_dataType.Items.Add(DataType.INTEGER16.ToString());
+                comboBox_dataType.Items.Add(DataType.INTEGER32.ToString());
+                comboBox_dataType.Items.Add(DataType.INTEGER64.ToString());
+                comboBox_dataType.Items.Add(DataType.UNSIGNED8.ToString());
+                comboBox_dataType.Items.Add(DataType.UNSIGNED16.ToString());
+                comboBox_dataType.Items.Add(DataType.UNSIGNED32.ToString());
+                comboBox_dataType.Items.Add(DataType.UNSIGNED64.ToString());
+                comboBox_dataType.Items.Add(DataType.REAL32.ToString());
+                comboBox_dataType.Items.Add(DataType.REAL64.ToString());
+                comboBox_dataType.Items.Add(DataType.VISIBLE_STRING.ToString());
+                comboBox_dataType.Items.Add(DataType.OCTET_STRING.ToString());
+                comboBox_dataType.Items.Add(DataType.UNICODE_STRING.ToString());
+                comboBox_dataType.Items.Add(DataType.DOMAIN.ToString());
+
+                comboBox_objectType.Items.Clear();
+                comboBox_objectType.Items.Add(ObjectType.VAR.ToString());
+                comboBox_objectType.Items.Add(ObjectType.ARRAY.ToString());
+                comboBox_objectType.Items.Add(ObjectType.RECORD.ToString());
+
+                comboBox_accessSDO.Items.Clear();
+                foreach (AccessSDO foo in Enum.GetValues(typeof(AccessSDO)))
+                    comboBox_accessSDO.Items.Add(foo.ToString());
+
+                comboBox_accessPDO.Items.Clear();
+                foreach (AccessPDO foo in Enum.GetValues(typeof(AccessPDO)))
+                    comboBox_accessPDO.Items.Add(foo.ToString());
+
+                label_pdoFlags.Visible = false;
+                checkBox_pdoFlags.Visible = false;
+            }
+            else
+            {
+                comboBox_dataType.Items.Clear();
+                foreach (DataType foo in Enum.GetValues(typeof(DataType)))
+                    comboBox_dataType.Items.Add(foo.ToString());
+                comboBox_objectType.Items.Clear();
+                foreach (ObjectType foo in Enum.GetValues(typeof(ObjectType)))
+                    comboBox_objectType.Items.Add(foo.ToString());
+                comboBox_accessSDO.Items.Clear();
+                foreach (EDSsharp.AccessType foo in Enum.GetValues(typeof(EDSsharp.AccessType)))
+                    comboBox_accessSDO.Items.Add(foo.ToString());
+                comboBox_accessPDO.Items.Clear();
+                foreach (PDOMappingType foo in Enum.GetValues(typeof(PDOMappingType)))
+                    comboBox_accessPDO.Items.Add(foo.ToString());
+
+                label_pdoFlags.Visible = true;
+                checkBox_pdoFlags.Visible = true;
+            }
+
+            comboBox_accessSRDO.Items.Clear();
+            foreach (AccessSRDO foo in Enum.GetValues(typeof(AccessSRDO)))
+                comboBox_accessSRDO.Items.Add(foo.ToString());
+
+
+        }
+        private bool ExporterTypeV4() { 
+            ExporterFactory.Exporter type = (ExporterFactory.Exporter)Properties.Settings.Default.ExporterType;
+            return (type == ExporterFactory.Exporter.CANOPENNODE_V4);
+        }
+
+       private bool Checkdirty()
+        {
+            var result = false;
+
             if (button_saveChanges.BackColor == Color.Red)
             {
-                if (lastSelectedObject != null && MessageBox.Show(String.Format("Unsaved changes on Index 0x{0:X4}/{1:X2}.\nDo you wish to switch object and loose your changes?", lastSelectedObject.Index, lastSelectedObject.Subindex), "Unsaved changes", MessageBoxButtons.YesNo) == DialogResult.No)
+
+                var answer = checkBox_autosave.Checked 
+                           ? DialogResult.No 
+                           : MessageBox.Show(String.Format("Unsaved changes on Index 0x{0:X4}/{1:X2}.\nDo you wish to switch object and loose your changes?\n\nYes = Lose changes\nNo = Save\nCancel = Go back and stay on the object", lastSelectedObject.Index, lastSelectedObject.Subindex), "Unsaved changes", MessageBoxButtons.YesNoCancel); ;
+
+
+                switch (answer)
                 {
-                    return true;
+                    case DialogResult.Cancel:
+                    default:
+                        result = lastSelectedObject != null;
+                        break;
+
+                    case DialogResult.Yes:
+                        result = false;
+                        break;
+
+                    case DialogResult.No:
+                        if (lastSelectedObject != null)
+                        {
+                            ObjectSave();
+                            result = false;
+                        }
+                        break;
                 }
+
                 button_saveChanges.BackColor = default;
             }
 
-            return false;
+            return result;
         }
 
         private void ComboBoxSet(ComboBox comboBox, string item)
@@ -143,7 +184,7 @@ namespace ODEditor
                 return;
 
             eds = eds_target;
-
+            eds.UpdatePDOcount();
             doUpdateDeviceInfo();
             doUpdatePDOs();
 
@@ -217,8 +258,7 @@ namespace ODEditor
 
             if (selectedObject == null)
                 return;
-
-            ODentry od = selectedObject.parent == null ? selectedObject : selectedObject.parent;
+            ODentry od = selectedObject.parent ?? selectedObject;
 
             if (od.objecttype == ObjectType.VAR)
             {
@@ -235,7 +275,7 @@ namespace ODEditor
                 lvi.Tag = od;
                 listView_subObjects.Items.Add(lvi);
             }
-            else if (od.objecttype == ObjectType.ARRAY || od.objecttype == ObjectType.REC)
+            else if (od.objecttype == ObjectType.ARRAY || od.objecttype == ObjectType.RECORD)
             {
                 ListViewItem lvi = new ListViewItem(new string[]{
                     " ",
@@ -268,8 +308,17 @@ namespace ODEditor
 
         public void PopulateObject()
         {
+
+            ExporterV4 = ExporterTypeV4();
+            if (ExporterOld != ExporterV4)
+            {
+                RebuildControls();
+                ExporterOld = ExporterV4;
+            }
+
             justUpdating = true;
             lastSelectedObject = selectedObject;
+
 
             if (selectedObject == null)
             {
@@ -308,7 +357,8 @@ namespace ODEditor
                                 ? od.parent.datatype.ToString()
                                 : od.datatype.ToString();
                 ComboBoxSet(comboBox_dataType, dataType);
-                if (CANopenNodeV4)
+
+                if (ExporterV4)
                 {
                     comboBox_accessSDO.SelectedItem = od.AccessSDO().ToString();
                     comboBox_accessPDO.SelectedItem = od.AccessPDO().ToString();
@@ -388,6 +438,18 @@ namespace ODEditor
 
         private void Button_saveChanges_Click(object sender, EventArgs e)
         {
+            ObjectSave();
+        }
+
+        private void ObjectSave()
+        {
+            ExporterV4 = ExporterTypeV4();
+            if (ExporterOld != ExporterV4)
+            {
+                RebuildControls();
+                ExporterOld = ExporterV4;
+            }
+
             if (selectedObject == null)
                 return;
 
@@ -398,7 +460,7 @@ namespace ODEditor
             od.parameter_name = textBox_name.Text;
             od.denotation = textBox_denotation.Text;
             od.Description = textBox_description.Text.Replace("\r\n", "\n");
-            od.ObjectTypeString(od.parent == null ? comboBox_objectType.SelectedItem.ToString() : "VAR");
+            od.ObjectTypeString(od.parent == null ? comboBox_objectType.SelectedItem.ToString() : "VAR"); 
 
             if (od.objecttype == ObjectType.VAR)
             {
@@ -411,7 +473,7 @@ namespace ODEditor
                     od.datatype = DataType.UNKNOWN;
                 }
 
-                if (CANopenNodeV4)
+                if (ExporterV4)
                 {
                     AccessSDO accessSDO;
                     try
@@ -460,6 +522,7 @@ namespace ODEditor
                 // CO_accessSRDO
                 try
                 {
+                    if(comboBox_accessSRDO.SelectedItem != null) 
                     od.prop.CO_accessSRDO = (AccessSRDO)Enum.Parse(typeof(AccessSRDO), comboBox_accessSRDO.SelectedItem.ToString());
                 }
                 catch (Exception)
@@ -567,14 +630,14 @@ namespace ODEditor
             {
                 if (e.Button == MouseButtons.Right)
                 {
-                    ODentry parent = od.parent == null ? od : od.parent;
+                    ODentry parent = od.parent ?? od;
 
-                    if (parent.objecttype == ObjectType.ARRAY || parent.objecttype == ObjectType.REC)
+                    if (parent.objecttype == ObjectType.ARRAY || parent.objecttype == ObjectType.RECORD)
                     {
                         contextMenu_subObject_removeSubItemToolStripMenuItem.Enabled = od.Subindex > 0 && od.parent != null;
-                        contextMenu_subObject_removeSubItemLeaveGapToolStripMenuItem.Enabled = parent.objecttype == ObjectType.REC && od.Subindex > 0 && od.parent != null;
+                        contextMenu_subObject_removeSubItemLeaveGapToolStripMenuItem.Enabled = parent.objecttype == ObjectType.RECORD && od.Subindex > 0 && od.parent != null;
 
-                        if (listView_subObjects.FocusedItem.Bounds.Contains(e.Location) == true)
+                        if (isClickOnItem(e.Location))
                         {
                             contextMenu_subObject.Show(Cursor.Position);
                         }
@@ -583,6 +646,24 @@ namespace ODEditor
                 selectedObject = od;
                 PopulateObject();
             }
+        }
+
+        private bool isClickOnItem(Point location)
+        {
+            if (listView_subObjects.FocusedItem != null)
+            {
+                return listView_subObjects.FocusedItem.Bounds.Contains(location);
+            }
+
+            foreach (ListViewItem item in listView_subObjects.Items)
+            {
+                if (item.Bounds.Contains(location))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void ListView_subObjects_SelectedIndexChanged(object sender, EventArgs e)
@@ -633,15 +714,23 @@ namespace ODEditor
 
             if (srcObjects.Count > 0)
             {
-                InsertObjects insObjForm = new InsertObjects(eds, srcObjects, "1");
+                InsertObjects insObjForm = new InsertObjects(eds, network, srcObjects, "1");
 
                 if (insObjForm.ShowDialog() == DialogResult.OK)
                 {
                     selectedObject = null;
-                    eds.Dirty = true;
+                    EDSsharp modifiedEds = insObjForm.GetModifiedEDS();
+                    modifiedEds.Dirty = true;
+                    if(modifiedEds == this.eds)
+                    {
                     PopulateObjectLists(eds);
                     PopulateSubList();
                     PopulateObject();
+                    }
+                    else
+                    {
+                        UpdateODViewForEDS?.Invoke(this, new UpdateODViewEventArgs(modifiedEds));
+                    }
                 }
             }
         }

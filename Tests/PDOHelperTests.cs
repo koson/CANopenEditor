@@ -36,7 +36,7 @@ namespace Tests
             tryGetODEntry(0x0004, out od);
             slot.Mapping.Add(od);
 
-            pdo.buildmappingsfromlists();
+            pdo.buildmappingsfromlists(true);
 
             //check configuration object exists
             ODentry comparamOD;
@@ -115,7 +115,7 @@ namespace Tests
             tryGetODEntry(0x0004, out od);
             slot.Mapping.Add(od);
 
-            pdo.buildmappingsfromlists();
+            pdo.buildmappingsfromlists(true);
 
             //check configuration object exists
             ODentry comparamOD;

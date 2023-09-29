@@ -21,6 +21,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using libEDSsharp;
 
@@ -28,10 +30,11 @@ namespace ODEditor
 {
     public partial class InsertObjects : Form
     {
-        readonly EDSsharp eds;
+        private EDSsharp eds;
         readonly SortedDictionary<UInt16, ODentry> srcObjects;
         readonly bool[] enabled;
         readonly int dataGridView_InitialColumnCount;
+        List<EDSsharp> network;
         List<int> offsets;
 
         /// <summary>
@@ -39,12 +42,21 @@ namespace ODEditor
         /// </summary>
         /// <param name="eds"></param>
         /// <param name="srcObjects"></param>
-        public InsertObjects(EDSsharp eds, SortedDictionary<UInt16, ODentry> srcObjects, string initialOffset)
+        public InsertObjects(EDSsharp eds, List<EDSsharp> network, SortedDictionary<UInt16, ODentry> srcObjects, string initialOffset)
         {
             this.eds = eds;
             this.srcObjects = srcObjects;
+            this.network = network;
 
             InitializeComponent();
+
+            cbox_Target.Items.Clear();
+            foreach(var item in network)
+            {
+                cbox_Target.Items.Add(item.di.ProductName);
+            }
+            cbox_Target.SelectedItem = eds.di.ProductName;
+
             textBox_offsets.Text = initialOffset;
 
             dataGridView.Columns.Add(new DataGridViewCheckBoxColumn()
@@ -74,23 +86,50 @@ namespace ODEditor
 
         private bool Verify(bool InitiallyDisableIfError = false)
         {
+            String pattern = @"(\d+)\s*?([-])\s*?(\d+)";
             /* get offests */
             offsets = new List<int>();
-            string[] str = textBox_offsets.Text.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string s in str)
-            {
-                try
+
+            MatchCollection matches = System.Text.RegularExpressions.Regex.Matches(textBox_offsets.Text, pattern);
+            if (matches.Count != 0) {
+                foreach (System.Text.RegularExpressions.Match m in matches)
                 {
-                    int value = (int)new System.ComponentModel.Int32Converter().ConvertFromString(s);
-                    offsets.Add(value);
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show("Syntax error in Index Offset!\n\nValid value is single signed number or space separated list of multiple signed numbers.");
-                    return false;
+                    int value1 = Int32.Parse(m.Groups[1].Value);
+                    int value2 = Int32.Parse(m.Groups[3].Value);
+
+                    if ((value2 > value1) && (m.Groups[2].Value == "-"))
+                    {
+                        for (int i = value1; i <= value2; i++)
+                        {
+                            try
+                            {
+                                offsets.Add(i);
+                            }
+                            catch (Exception)
+                            {
+                                MessageBox.Show("Syntax error in Index Offset!\n\nValid value is single signed number or space separated list of multiple signed numbers or a range seprated by '-'.");
+                                return false;
+                            }
+                        }
+                    }
                 }
             }
-
+            else {
+                string[] str = textBox_offsets.Text.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string s in str)
+                {
+                    try
+                    {
+                        int value = (int)new System.ComponentModel.Int32Converter().ConvertFromString(s);
+                        offsets.Add(value);
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show("Syntax error in Index Offset!\n\nValid value is single signed number or space separated list of multiple signed numbers or a range seprated by '-'.");
+                        return false;
+                    }
+                }
+            }
             // write column headers
             int colIdx = dataGridView_InitialColumnCount;
             dataGridView.ColumnCount = colIdx + offsets.Count;
@@ -112,9 +151,27 @@ namespace ODEditor
             dataGridView.Rows.Clear();
 
             int odIdx = 0;
+            int j = 1;
             foreach (ODentry od in srcObjects.Values)
             {
-                int rowIdx = dataGridView.Rows.Add(enabled[odIdx], $"0x{od.Index:X4} - {od.parameter_name}");
+                String numpattern = @"(\w*\d+\Z)";
+                string newname;
+
+                string[] words = Regex.Split(od.parameter_name, numpattern);
+                // MatchCollection nummatches = System.Text.RegularExpressions.Regex.Matches(od.parameter_name, numpattern);
+                if (words.Length > 1)
+                {
+
+                    // value1 = Int32.Parse(m.Groups[1].Value);
+                    int nameidx = Int32.Parse(words[1]) + j++;
+
+                    newname = words[0] + nameidx;// nameidx.ToString  ;
+
+                }
+                else {
+                     newname = od.parameter_name;
+                }
+                    int rowIdx = dataGridView.Rows.Add(enabled[odIdx], $"0x{od.Index:X4} - {newname}");
                 int cellIdx = dataGridView_InitialColumnCount;
 
                 foreach (int o in offsets)
@@ -129,6 +186,7 @@ namespace ODEditor
 
                     if (!err)
                     {
+                        
                         newIndexes.Add(newIndex);
                         err = eds.ods.ContainsKey((UInt16)newIndex);
                     }
@@ -162,6 +220,7 @@ namespace ODEditor
             {
                 // clone OD objects
                 int odIdx = 0;
+                int i = 1;
                 foreach (ODentry od in srcObjects.Values)
                 {
                     if (enabled[odIdx])
@@ -170,6 +229,18 @@ namespace ODEditor
                         {
                             UInt16 newIndex = (UInt16)(od.Index + o);
                             ODentry newObject = od.Clone();
+
+                            String pattern = @"(\w*\d+\Z)";
+
+                            string[] words = Regex.Split(od.parameter_name, pattern);
+                            // MatchCollection nummatches = System.Text.RegularExpressions.Regex.Matches(od.parameter_name, numpattern);
+                            if (words.Length > 1)
+                            {
+                                int nameidx = Int32.Parse(words[1]) + i++;
+                                newObject.parameter_name = words[0] + nameidx;// nameidx.ToString  ;
+
+                            }
+
                             newObject.Index = newIndex;
 
                             eds.ods.Add(newIndex, newObject);
@@ -232,6 +303,28 @@ namespace ODEditor
                 cell.Value = false;
                 enabled[odIdx++] = false;
             }
+        }
+
+        private void cbox_Target_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            EDSsharp edsBefore = eds;
+            foreach (var item in network)
+            {
+                if((string)cbox_Target.SelectedItem == item.di.ProductName)
+                {
+                    this.eds = item;
+                    break;
+                }
+            }
+            if(this.eds != null && this.eds != edsBefore)
+            {
+                Verify(false);
+            }
+        }
+
+        public EDSsharp GetModifiedEDS()
+        {
+            return this.eds;
         }
     }
 }

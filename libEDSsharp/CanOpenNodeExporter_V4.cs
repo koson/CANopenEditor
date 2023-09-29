@@ -46,22 +46,6 @@ namespace libEDSsharp
         private Dictionary<string, UInt16> ODCnt;
         private Dictionary<string, int> ODArrSize;
 
-        UInt16 CNT_NMT = 0;
-        UInt16 CNT_HB_CONS = 0;
-        UInt16 CNT_EM = 0;
-        UInt16 CNT_SDO_SRV = 0;
-        UInt16 CNT_SDO_CLI = 0;
-        UInt16 CNT_TIME = 0;
-        UInt16 CNT_SYNC = 0;
-        UInt16 CNT_SYNC_PROD = 0;
-        UInt16 CNT_STORAGE = 0;
-        UInt16 CNT_RPDO = 0;
-        UInt16 CNT_TPDO = 0;
-        UInt16 CNT_GFC = 0;
-        UInt16 CNT_SRDO = 0;
-        UInt16 CNT_EM_PROD = 0;
-        UInt16 CNT_HB_PROD = 0;
-
         /// <summary>
         /// export the current data set in the CanOpen Node format V4
         /// </summary>
@@ -106,38 +90,7 @@ namespace libEDSsharp
             {
                 if (od.prop.CO_disabled == true)
                     continue;
-                // The code below is nessesary if you have old eds file, that do not have "CO_countLabel" set.
-                // Count objects for initialization of CO_config_t object.
-                if (od.Index==0x1017)
-                    CNT_NMT++;
-                if (od.Index==0x1016)
-                    CNT_HB_CONS++;
-                if ((od.Index==0x1014 || od.Index==0x1015) && CNT_EM==0)
-                    CNT_EM++;
-                if (od.Index>=0x1200 && od.Index<0x1280)
-                    CNT_SDO_SRV++;
-                if (od.Index>=0x1280 && od.Index<0x1300)
-                    CNT_SDO_CLI++;
-                if (od.Index==0x1012)
-                    CNT_TIME++;
-                if (od.Index==0x1005)
-                    CNT_SYNC++;
-                if (od.Index>=0x1400 && od.Index<0x1500)
-                    CNT_RPDO++;
-                if (od.Index>=0x1800 && od.Index<0x1900)
-                    CNT_TPDO++;
-                if (od.Index==0x1300)
-                    CNT_GFC++;
-                if (od.Index>=0x1301 && od.Index<0x1380)
-                    CNT_SRDO++;
-                if (od.Index==0x1010)
-                    CNT_STORAGE++;
-                if (od.Index==0x1014)
-                    CNT_EM_PROD++;
-                if (od.Index==0x1006)
-                    CNT_SYNC_PROD++;
-                if (od.Index == 0x1006)
-                    CNT_HB_PROD++;
+
                 string indexH = $"{od.Index:X4}";
                 string cName = Make_cname(od.parameter_name);
                 string varName = $"{indexH}_{cName}";
@@ -157,17 +110,17 @@ namespace libEDSsharp
                 switch (od.objecttype)
                 {
                     case ObjectType.VAR:
-                        odObjectType = ObjectType.VAR.ToString();
+                        odObjectType = "VAR";
                         subEntriesCount = Prepare_var(od, indexH, varName, od.prop.CO_storageGroup);
                         break;
 
                     case ObjectType.ARRAY:
-                        odObjectType = ObjectType.ARRAY.ToString();
+                        odObjectType = "ARR";
                         subEntriesCount = Prepare_arr(od, indexH, varName, od.prop.CO_storageGroup);
                         break;
 
                     case ObjectType.RECORD:
-                        odObjectType = ObjectType.RECORD.ToString();
+                        odObjectType = "REC";
                         subEntriesCount = Prepare_rec(od, indexH, varName, od.prop.CO_storageGroup);
                         break;
                 }
@@ -187,32 +140,43 @@ namespace libEDSsharp
                 {
                     if (ODCnt.ContainsKey(od.prop.CO_countLabel))
                         ODCnt[od.prop.CO_countLabel]++;
-                    //else
-                    //    ODCnt.Add(od.prop.CO_countLabel, 1);
+                    else
+                        ODCnt.Add(od.prop.CO_countLabel, 1);
                 }
+
+                // Verify objects, if they have set correct "CO_countLabel", according to Object Dictionary Requirements By CANopenNode V4.
+                // https://github.com/CANopenNode/CANopenNode/blob/master/doc/objectDictionary.md
+                VerifyCountLabel(od, 0x1000, 0x1000, "NMT");
+                VerifyCountLabel(od, 0x1001, 0x1001, "EM");
+                VerifyCountLabel(od, 0x1005, 0x1005, "SYNC");
+                VerifyCountLabel(od, 0x1006, 0x1006, "SYNC_PROD");
+                VerifyCountLabel(od, 0x1010, 0x1010, "STORAGE");
+                VerifyCountLabel(od, 0x1012, 0x1012, "TIME");
+                VerifyCountLabel(od, 0x1014, 0x1014, "EM_PROD");
+                VerifyCountLabel(od, 0x1016, 0x1016, "HB_CONS");
+                VerifyCountLabel(od, 0x1017, 0x1017, "HB_PROD");
+                VerifyCountLabel(od, 0x1200, 0x127F, "SDO_SRV");
+                VerifyCountLabel(od, 0x1280, 0x12FF, "SDO_CLI");
+                VerifyCountLabel(od, 0x1300, 0x1300, "GFC");
+                VerifyCountLabel(od, 0x1301, 0x1340, "SRDO");
+                VerifyCountLabel(od, 0x1400, 0x15FF, "RPDO");
+                VerifyCountLabel(od, 0x1800, 0x19FF, "TPDO");
             }
-            CNT_SRDO=(UInt16)(CNT_SRDO/2);
-            // The code below is nessesary if you have old eds file, that do not have "CO_countLabel" set.
-            if (ODCnt.Count==0) {
-                ODCnt.Add("NMT", CNT_NMT);
-                ODCnt.Add("EM", CNT_EM);
-                ODCnt.Add("SYNC", CNT_SYNC);
-                ODCnt.Add("SYNC_PROD", CNT_SYNC_PROD);
-                ODCnt.Add("STORAGE", CNT_STORAGE);
-                ODCnt.Add("TIME", CNT_TIME);
-                ODCnt.Add("EM_PROD", CNT_EM_PROD);
-                ODCnt.Add("HB_CONS", CNT_HB_CONS);
-                ODCnt.Add("HB_PROD", CNT_HB_PROD);
-                ODCnt.Add("SDO_SRV", CNT_SDO_SRV);
-                ODCnt.Add("SDO_CLI", CNT_SDO_CLI);
-                ODCnt.Add("RPDO", CNT_RPDO);
-                ODCnt.Add("TPDO", CNT_TPDO);
-                ODCnt.Add("GFC", CNT_GFC);
-                ODCnt.Add("SRDO", CNT_SRDO);
-                //ODCnt.Add("STORAGE", CNT_STORAGE);
-                //ODCnt.Add("EM_PROD", CNT_EM_PROD);
-                //ODCnt.Add("SYNC_PROD", CNT_SYNC_PROD);
-                //ODCnt.Add("HB_PROD", CNT_HB_PROD);
+        }
+
+        /// <summary>
+        /// Verify "Count Label" of the object and raise warning if uncorrect.
+        /// </summary>
+        /// <param name="od"></param>
+        /// <param name="indexL"></param>
+        /// <param name="indexH"></param>
+        /// <param name="countLabel"></param>
+        /// <returns></returns>
+        private void VerifyCountLabel(ODentry od, ushort indexL, ushort indexH, string countLabel)
+        {
+            if (od.Index >= indexL && od.Index <= indexH && od.prop.CO_countLabel != countLabel)
+            {
+                Warnings.AddWarning($"Error in 0x{od.Index:X4}: 'Count Label' must be '{countLabel}'", Warnings.warning_class.WARNING_BUILD);
             }
         }
 
@@ -231,13 +195,13 @@ namespace libEDSsharp
 
             // data storage
             string dataPtr = "NULL";
+            ODStorage_t[group].Add($"{data.cType} x{varName}{data.cTypeArray};");
             if (data.cValue != null)
             {
-                ODStorage_t[group].Add($"{data.cType} x{varName}{data.cTypeArray};");
                 ODStorage[group].Add($".x{varName} = {data.cValue}");
-                dataPtr = $"&{odname}_{group}.x{varName}{data.cTypeArray0}";
             }
 
+            dataPtr = $"&{odname}_{group}.x{varName}{data.cTypeArray0}";
             // objects
             ODObjs_t.Add($"OD_obj_var_t o_{varName};");
             ODObjs.Add($"    .o_{varName} = {{");
@@ -382,12 +346,12 @@ namespace libEDSsharp
 
                 string subcName = Make_cname(sub.parameter_name);
                 string dataPtr = "NULL";
+                subODStorage_t.Add($"{data.cType} {subcName}{data.cTypeArray};");
                 if (data.cValue != null)
                 {
-                    subODStorage_t.Add($"{data.cType} {subcName}{data.cTypeArray};");
                     subODStorage.Add($".{subcName} = {data.cValue}");
-                    dataPtr = $"&{odname}_{group}.x{varName}.{subcName}{data.cTypeArray0}";
                 }
+                dataPtr = $"&{odname}_{group}.x{varName}.{subcName}{data.cTypeArray0}";
                 ODObjs.Add($"        {{");
                 ODObjs.Add($"            .dataOrig = {dataPtr},");
                 ODObjs.Add($"            .subIndex = {sub.Subindex},");
@@ -533,6 +497,7 @@ namespace libEDSsharp
 *******************************************************************************/
 {0}", string.Join("\n", ODDefinesLong)));
 
+            // following code initializes CO_config_t structure as specified in file CANopenNode/CANopen.h
             file.WriteLine($@"
 
 /*******************************************************************************
@@ -576,10 +541,6 @@ namespace libEDSsharp
     (config).ENTRY_H1381 = {(eds.ods.ContainsKey(0x1381) ? odname + "_ENTRY_H1381" : "NULL")};\
     (config).ENTRY_H13FE = {(eds.ods.ContainsKey(0x13FE) ? odname + "_ENTRY_H13FE" : "NULL")};\
     (config).ENTRY_H13FF = {(eds.ods.ContainsKey(0x13FF) ? odname + "_ENTRY_H13FF" : "NULL")};\
-    (config).CNT_GFC = {(ODCnt.ContainsKey("STORAGE") ? odname + "_CNT_STORAGE" : "0")};\
-    (config).CNT_GFC = {(ODCnt.ContainsKey("EM_PROD") ? odname + "_EM_PROD" : "0")};\
-    (config).CNT_GFC = {(ODCnt.ContainsKey("SYNC_PROD") ? odname + "_SYNC_PROD" : "0")};\
-    (config).CNT_GFC = {(ODCnt.ContainsKey("HB_PROD") ? odname + "_HB_PROD" : "0")};\
     (config).CNT_LSS_SLV = 0;\
     (config).CNT_LSS_MST = 0;\
     (config).CNT_GTWA = 0;\
@@ -774,11 +735,11 @@ OD_t *{0} = &_{0};", odname, string.Join(",\n    ", ODList)));
                 valueDefined = false;
             else if (dataType != DataType.VISIBLE_STRING && dataType != DataType.UNICODE_STRING && dataType != DataType.OCTET_STRING)
             {
-                defaultvalue = defaultvalue.Trim();
+                defaultvalue = defaultvalue.Trim();       
 
-                if (defaultvalue.Contains("$NODEID"))
+                if (defaultvalue.Contains("$NODEID",StringComparison.OrdinalIgnoreCase)) // fetch different case of "NODeID" (allowed according DS301)
                 {
-                    defaultvalue = defaultvalue.Replace("$NODEID", "");
+                    defaultvalue = defaultvalue.ToUpper().Replace("$NODEID", "");
                     defaultvalue = defaultvalue.Replace("+", "");
                     defaultvalue = defaultvalue.Trim();
                     if (defaultvalue == "")
@@ -1144,6 +1105,8 @@ OD_t *{0} = &_{0};", odname, string.Join(",\n    ", ODList)));
 
             if (cTypeString)
                 attributes.Add("ODA_STR");
+
+            if (attributes.Count == 0) attributes.Add("0");
 
             return string.Join(" | ", attributes);
         }

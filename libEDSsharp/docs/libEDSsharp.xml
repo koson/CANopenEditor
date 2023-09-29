@@ -25,6 +25,16 @@
             </summary>
             <param name="ods"></param>
         </member>
+        <member name="M:libEDSsharp.CanOpenNodeExporter_V4.VerifyCountLabel(libEDSsharp.ODentry,System.UInt16,System.UInt16,System.String)">
+            <summary>
+            Verify "Count Label" of the object and raise warning if uncorrect.
+            </summary>
+            <param name="od"></param>
+            <param name="indexL"></param>
+            <param name="indexH"></param>
+            <param name="countLabel"></param>
+            <returns></returns>
+        </member>
         <member name="M:libEDSsharp.CanOpenNodeExporter_V4.Prepare_var(libEDSsharp.ODentry,System.String,System.String,System.String)">
             <summary>
             Generate ODStorage and ODObjs entries for VAR
@@ -230,6 +240,12 @@
             </summary>
             <returns>string summary of object</returns>
         </member>
+        <member name="M:libEDSsharp.ODentry.ObjectTypeString">
+            <summary>
+            Provide a simple string representation of the object type. Returns the string of the ENUM ObjectType.VAR if objecttype is not enumed  
+            </summary>
+            <returns>string representation of object type </returns>
+        </member>
         <member name="M:libEDSsharp.ODentry.AddSubEntry">
             <summary>
             Duplicate current sub entry and add it to parent
@@ -296,7 +312,7 @@
             filled in with default values from the lowest possible index
             </summary>
         </member>
-        <member name="M:libEDSsharp.PDOHelper.buildmappingsfromlists">
+        <member name="M:libEDSsharp.PDOHelper.buildmappingsfromlists(System.Boolean)">
             <summary>
             Rebuild the communication and mapping paramaters from the
             lists the PDOhelper currently has. These live in the list pdoslots
@@ -312,6 +328,12 @@
             <summary>
             This finds a gap in the PDO slots
             </summary>
+        </member>
+        <member name="M:libEDSsharp.PDOHelper.removePDOslot(System.UInt16)">
+            <summary>
+            Remove existing PDO slot as set by index
+            </summary>
+            <param name="configindex"></param>
         </member>
         <member name="T:CanOpenXSD_1_0.ISO15745ProfileContainer">
             <remarks/>
@@ -973,7 +995,7 @@
         <member name="T:CanOpenXSD_1_0.ProfileBody_CommunicationNetwork_CANopenNetworkManagementDeviceCommissioning">
             <remarks/>
         </member>
-        <member name="P:CanOpenXSD_1_0.ProfileBody_CommunicationNetwork_CANopenNetworkManagementDeviceCommissioning.nodeID">
+        <member name="P:CanOpenXSD_1_0.ProfileBody_CommunicationNetwork_CANopenNetworkManagementDeviceCommissioning.NodeID">
             <remarks/>
         </member>
         <member name="P:CanOpenXSD_1_0.ProfileBody_CommunicationNetwork_CANopenNetworkManagementDeviceCommissioning.nodeName">
@@ -3388,7 +3410,7 @@
         <member name="T:CanOpenXSD_1_1.ProfileBody_CommunicationNetwork_CANopenNetworkManagementDeviceCommissioning">
             <remarks/>
         </member>
-        <member name="P:CanOpenXSD_1_1.ProfileBody_CommunicationNetwork_CANopenNetworkManagementDeviceCommissioning.nodeID">
+        <member name="P:CanOpenXSD_1_1.ProfileBody_CommunicationNetwork_CANopenNetworkManagementDeviceCommissioning.NodeID">
             <remarks/>
         </member>
         <member name="P:CanOpenXSD_1_1.ProfileBody_CommunicationNetwork_CANopenNetworkManagementDeviceCommissioning.nodeName">

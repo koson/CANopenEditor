@@ -44,7 +44,7 @@ namespace libEDSsharp
 
             foreach (EDSsharp eds in network)
             {
-                write2linetablerow(eds.dc.NodeId.ToString(), eds.di.ProductName);
+                write2linetablerow(eds.dc.NodeID.ToString(), eds.di.ProductName);
             }
 
             file.Write("</table>");
@@ -165,7 +165,7 @@ namespace libEDSsharp
                                 }
 
 
-                                file.Write(string.Format("<tr> <td>0x{0:x2}</td> <td>{1}</td> <td>0x{2:x4}/0x{3:x2}</td><td>{4}</td> <td>{5}</td><td>", eds.dc.NodeId, eds.di.ProductName, index, subindex, name, size));
+                                file.Write(string.Format("<tr> <td>0x{0:x2}</td> <td>{1}</td> <td>0x{2:x4}/0x{3:x2}</td><td>{4}</td> <td>{5}</td><td>", eds.dc.NodeID, eds.di.ProductName, index, subindex, name, size));
 
 
                                 //find all receivers here
@@ -279,7 +279,7 @@ namespace libEDSsharp
                                                             }
 
 
-                                                            file.Write(string.Format("<tr> <td>0x{0:x2}</td> <td>{1}</td> <td>0x{2:x4}/0x{3:x2}</td> <td>{4}</td><td>{5}{6}</td></tr>", eds2.dc.NodeId, eds2.di.ProductName, index2, subindex2, name2, size2, sizemsg));
+                                                            file.Write(string.Format("<tr> <td>0x{0:x2}</td> <td>{1}</td> <td>0x{2:x4}/0x{3:x2}</td> <td>{4}</td><td>{5}{6}</td></tr>", eds2.dc.NodeID, eds2.di.ProductName, index2, subindex2, name2, size2, sizemsg));
 
                                                         }
 

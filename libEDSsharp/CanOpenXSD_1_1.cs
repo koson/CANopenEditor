@@ -2691,7 +2691,7 @@ namespace CanOpenXSD_1_1 {
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte nodeID {
+        public byte NodeID {
             get {
                 return this.nodeIDField;
             }

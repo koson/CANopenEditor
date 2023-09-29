@@ -18,6 +18,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using libEDSsharp;
 
@@ -27,12 +28,19 @@ namespace ODEditor
     {
 
         readonly public EDSsharp eds;
+        readonly private List<EDSsharp> network;
 
-        public DeviceView(EDSsharp eds_target)
+        public event EventHandler<UpdateODViewEventArgs> UpdateODViewForEDS;
+
+        public DeviceView(EDSsharp eds_target, List<EDSsharp> network)
         {
             eds = eds_target;
+            this.network = network;
 
             InitializeComponent();
+
+            this.deviceODView1.network = network;
+            this.deviceODView1.UpdateODViewForEDS += DeviceODView1_UpdateODView;
 
             foreach (TabPage tp in tabControl1.TabPages)
             {
@@ -54,6 +62,15 @@ namespace ODEditor
      
         }
 
+        private void DeviceODView1_UpdateODView(object sender, UpdateODViewEventArgs e)
+        {
+            EventHandler<UpdateODViewEventArgs> handler = UpdateODViewForEDS;
+            if(handler != null)
+            {
+                handler(this, e);  
+            }
+        }
+
         #region UpdateDispatchEvents
 
         // This region handles update requests that are dispatched to the various user controls on the tabs
@@ -67,8 +84,8 @@ namespace ODEditor
             deviceInfoView.populatedeviceinfo();
 
 
-            moduleInfo1.eds = eds;
-            moduleInfo1.populatemoduleinfo();
+            //moduleInfo1.eds = eds;
+            //moduleInfo1.populatemoduleinfo();
         }
 
         public void dispatch_updatePDOinfo()

@@ -281,7 +281,7 @@ namespace Xml2CSharp
 	}
 
 	[XmlRoot(ElementName="baudRate")]
-	public class BaudRate {
+	public class Baudrate {
 		[XmlElement(ElementName="supportedBaudRate")]
 		public List<SupportedBaudRate> SupportedBaudRate { get; set; }
 	}
@@ -307,7 +307,7 @@ namespace Xml2CSharp
 		[XmlElement(ElementName="capabilities")]
 		public Capabilities Capabilities { get; set; }
 		[XmlElement(ElementName="baudRate")]
-		public BaudRate BaudRate { get; set; }
+		public Baudrate Baudrate { get; set; }
 		[XmlElement(ElementName="dummyUsage")]
 		public DummyUsage DummyUsage { get; set; }
 	}

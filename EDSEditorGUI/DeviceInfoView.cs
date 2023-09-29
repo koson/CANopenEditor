@@ -85,9 +85,9 @@ namespace ODEditor
             //DCF support
             if (eds.dc!=null)
             {
-                textBox_concretenodeid.Text = eds.dc.NodeId.ToString();
+                textBox_concretenodeid.Text = eds.dc.NodeID.ToString();
                 textBox_nodename.Text = eds.dc.NodeName;
-                textBox_baudrate.Text = eds.dc.BaudRate.ToString();
+                textBox_baudrate.Text = eds.dc.Baudrate.ToString();
                 textBox_netnum.Text = eds.dc.NetNumber.ToString();
                 checkBox_canopenmanager.Checked = eds.dc.CANopenManager;
                 textBox_lssserial.Text = eds.dc.LSS_SerialNumber.ToString();
@@ -98,11 +98,6 @@ namespace ODEditor
         }
 
 
-        void InputControls_OnChange(object sender, EventArgs e)
-        {
-            // Do something to indicate the form is dirty like:
-            button_update_devfile_info.BackColor = System.Drawing.Color.Red;
-        }
 
         void AddOnChangeHandlerToInputControls(ControlCollection ctrl)
         {
@@ -111,7 +106,8 @@ namespace ODEditor
                 if (subctrl is TextBox)
                     ((TextBox)subctrl).TextChanged +=
                         new EventHandler(InputControls_OnChange);
-                else if (subctrl is CheckBox)
+                else
+                if (subctrl is CheckBox)
                     ((CheckBox)subctrl).CheckedChanged +=
                         new EventHandler(InputControls_OnChange);
                 else
@@ -122,9 +118,7 @@ namespace ODEditor
             }
     }
 
-
-
-        private void button_update_devfile_info_Click(object sender, EventArgs e)
+        private void update_devfile_info()
         {
             if (eds == null)
                 return;
@@ -163,22 +157,26 @@ namespace ODEditor
                 //textBox_txpdos.Text = eds.di.NrOfTXPDO.ToString();
 
                 //DCF support
-                eds.dc.NodeId = Convert.ToByte(textBox_concretenodeid.Text);
+                eds.dc.NodeID = Convert.ToByte(textBox_concretenodeid.Text);
                 eds.dc.NodeName = textBox_nodename.Text;
-                eds.dc.BaudRate = Convert.ToUInt16(textBox_baudrate.Text);
+                eds.dc.Baudrate = Convert.ToUInt16(textBox_baudrate.Text);
                 eds.dc.NetNumber = Convert.ToUInt32(textBox_netnum.Text);
                 eds.dc.CANopenManager = checkBox_canopenmanager.Checked;
                 eds.dc.LSS_SerialNumber = Convert.ToUInt32(textBox_lssserial.Text);
 
                 eds.Dirty = true;
-                button_update_devfile_info.BackColor = SystemColors.ButtonFace;
-                button_update_devfile_info.UseVisualStyleBackColor = true;
 
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Update failed, reason :-\n" + ex.ToString());
             }
+        }
+
+        void InputControls_OnChange(object sender, EventArgs e)
+        {
+            // Changes detected: Update the device info
+            update_devfile_info();
         }
     }
 }
